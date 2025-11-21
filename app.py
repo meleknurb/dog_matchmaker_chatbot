@@ -1,5 +1,4 @@
 import streamlit as st
-from dotenv import load_dotenv
 import os
 import re
 import json
@@ -29,10 +28,10 @@ st.set_page_config(
     layout="centered"
 )
 
-load_dotenv()
-api_key = os.getenv("GENAI_API_KEY")
-if not api_key:
-    st.error("GENAI_API_KEY not found in .env")
+try:
+    api_key = st.secrets["GENAI_API_KEY"]
+except KeyError:
+    st.error("GENAI_API_KEY not found in Streamlit Secrets!")
     st.stop()
 
 @st.cache_resource
