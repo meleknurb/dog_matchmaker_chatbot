@@ -200,14 +200,15 @@ You have the following dog traits for breed matching:
 2. Affection & Family Compatibility
 3. Good With Young Children
 4. Social with Strangers & Other Dogs
-5. Watchdog/Protective Nature
-6. Barking Level
-7. Shedding Level
-8. Drooling Level
-9. Brushing & Grooming
-10. Adaptability Level
-11. Trainability Level
-12. Coat Length & Coat Type
+5. Adaptability Level
+6. Trainability Level
+7. Watchdog/Protective Nature
+8. Barking Level
+9. Shedding Level
+10. Drooling Level
+11. Coat Length & Coat Type
+12. Brushing & Grooming
+
 
 Instruction:
 
