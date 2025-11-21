@@ -1,0 +1,6 @@
+google-generativeai
+moviepy==1.0.3
+numpy
+pandas
+scikit-learn
+streamlit
