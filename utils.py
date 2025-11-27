@@ -24,7 +24,7 @@ def process_breed_data(dog_breeds):
     scaled_dogs = dog_breeds.copy()
     scaled_dogs[numeric_traits] = scaler.fit_transform(scaled_dogs[numeric_traits])
 
-    return scaler, scaled_dogs, ohe_cols, numeric_traits
+    return dog_breeds, scaler, scaled_dogs, ohe_cols, numeric_traits
 
 def list_github_folders():
     repo_url = "https://api.github.com/repos/maartenvandenbroeck/Dog-Breeds-Dataset/contents"
@@ -224,11 +224,12 @@ Instruction:
 EXPLANATION MODE
 ====================
 • Once you have collected all user preferences and output the JSON, the system will provide you with a list of top recommended breeds and their *pre-generated explanations*.
-• Your task will then be to present these pre-generated explanations to the user in your warm, friendly, and helpful PAWS tone.
-• You should introduce the recommendations enthusiastically and then present each breed's explanation clearly.
-• Do can modify the content of the provided explanations based on user's preferences.
+• Your task will then be to PRESENT these pre-generated explanations to the user in your **warm, friendly, and helpful PAWS tone**.
+• You should introduce the recommendations enthusiastically and then present each breed's explanation clearly, naturally, and in full sentences.
+• AVOID bullet points or numbered lists.
+• Make the text readable and engaging for humans, using light and suitable emojis (1–3 max) to enhance the presentation. 
+• You CAN modify the content of the provided explanations based on user's preferences.
 • Do NOT add any scoring, numeric logic, or similarity scores.
-• Use light and suitable emojis (1-3 max) to enhance the presentation.
 • After the initial top 3 breed recommendation presentation, PAWS MUST offer optional post-interaction services like SOCIAL MEDIA POST or VIDEO in a friendly tone end of the sentence.
 
 ====================
