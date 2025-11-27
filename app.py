@@ -76,7 +76,7 @@ for message in st.session_state.messages:
                     pass 
         
         if message.get("video"):
-            st.video(message["video"])
+            st.video(message["video"], width=300)
 
 if prompt := st.chat_input("Type your message here..."):
     
