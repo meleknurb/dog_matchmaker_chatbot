@@ -38,7 +38,7 @@ except KeyError:
 def load_data_once():
     d_breeds = load_breed_data()    
     t_descriptions = load_trait_descriptions()
-    sclr, s_dogs, ohe, num_traits = process_breed_data(d_breeds)
+    d_breeds, sclr, s_dogs, ohe, num_traits = process_breed_data(d_breeds)
     fldrs = list_github_folders()
     cleaned = get_cleaned_breed_list(d_breeds)
     mpng = create_breed_github_mapping(cleaned, fldrs)
@@ -69,10 +69,9 @@ for message in st.session_state.messages:
         
         if message.get("recommendations"):
             for rec in message["recommendations"]:
-                st.markdown(f"### 🐶 {rec['breed_name']}")
                 st.markdown(rec['description'])
                 if rec['image']:
-                    st.image(rec['image'], caption=rec['breed_name'], use_column_width=True)
+                    st.image(rec['image'], caption=rec['breed_name'])
                 else:
                     pass 
         
@@ -102,12 +101,31 @@ if prompt := st.chat_input("Type your message here..."):
                     final_text_content = resp.text
                 else:
                     if intent == "post":
-                        post_prompt = f"Generate a short, playful social media caption for {breed}. Theme: {prompt}. Max 2 sentences."
+                        post_prompt = f"""
+                            You are generating a short social media caption.
+
+                            User requested a post for this dog breed: {breed}.
+                            User's specific theme or message idea: \"{prompt}\".
+
+                            Follow these rules strictly:
+
+                            1. The caption MUST follow the user's requested theme or message.
+                            2. Keep it warm, friendly, playful, and positive.
+                            3. Max 2 short sentences.
+                            4. Use hastags and 1–3 emojis.
+                            5. Do NOT mention rankings, scores, or comparisons.
+                            6. Make the caption feel personal — like it's written for the user's situation.
+
+                            Now create the final social media caption:
+                        """
                         post_response = st.session_state.chat_session.send_message(post_prompt)
                         final_text_content = f"**PAWS (Social Media Post):**\n\n{post_response.text.strip()}"
                         
                         img = fetch_breed_image(breed, mapping=mapping)
                         if img:
+                            max_size = (400, 400) 
+                            img.thumbnail(max_size, Image.LANCZOS)
+
                             final_recommendations.append({
                                 "breed_name": breed,
                                 "description": "",
@@ -115,7 +133,24 @@ if prompt := st.chat_input("Type your message here..."):
                             })
 
                     elif intent == "video":
-                        video_prompt = f"Caption for looping video of {breed}. Theme: {prompt}."
+                        video_prompt = f"""
+                        You are generating a short social media caption.
+
+                        User requested a post for this dog breed: {breed}.
+                        User's specific theme or message idea: \"{prompt}\".
+
+                        Follow these rules strictly:
+
+                        1. The caption MUST follow the user's requested theme or message.
+                        2. Keep it warm, friendly, playful, and positive.
+                        3. Max 2 short sentences.
+                        4. Use hastags and 1–3 emojis.
+                        5. Do NOT mention rankings, scores, or comparisons.
+                        6. Make the caption feel personal — like it's written for the user's situation.
+                        7. Don't say i can't make videos — just provide the caption.
+
+                        Now create the final social media caption:"""
+                        
                         video_caption = st.session_state.chat_session.send_message(video_prompt)
                         final_text_content = f"**PAWS (Video Caption):**\n\n{video_caption.text.strip()}"
                         
@@ -144,25 +179,38 @@ if prompt := st.chat_input("Type your message here..."):
                             ranked_list_for_explanation = []
                             for idx, row in ranked_df.iterrows():
                                 raw_name = row['Breed']
-                                clean_name = str(raw_name).replace('\xa0', ' ').strip()
+                                clean_name = str(raw_name).replace('\xa0', ' ').strip().strip("'\"")
                                 ranked_list_for_explanation.append((clean_name, row['Similarity']))
 
                             final_results_data = explain_top_breeds(ranked_list_for_explanation, dog_breeds, trait_descriptions)
-                            if not final_text_content:
-                                final_text_content = "Great news! Here are our top 3 dog breed recommendations, handpicked just for you: 🐾\n\n"
+                            presentation_message = "Great news! Here are our top 3 dog breed recommendations, handpicked just for you: 🐾\n\n"
 
                             for r in final_results_data:
                                 raw_name = r['Breed']
-                                b_name = str(raw_name).replace('\xa0', ' ').strip()
+                                b_name = str(raw_name).replace('\xa0', ' ').strip().strip("'\"")
+                                presentation_message += f"🐶 **{b_name}**\n" 
+                                presentation_message += f"{r['Explanation']}\n\n"
 
+                            ai_response = st.session_state.chat_session.send_message(presentation_message) 
+                            final_context = ai_response.text.strip()
+
+                            final_text_content = final_text_content + "\n\n" + final_context
+
+                            for r in final_results_data:
+                                raw_name = r['Breed']
+                                b_name = str(raw_name).replace('\xa0', ' ').strip().strip("'\"")
                                 img = fetch_breed_image(b_name, mapping=mapping)
+                                
+                                if img:
+                                    max_size = (300, 300)
+                                    img.thumbnail(max_size, Image.LANCZOS)
                                 
                                 final_recommendations.append({
                                     "breed_name": b_name,
-                                    "description": r['Explanation'],
+                                    "description": "", 
                                     "image": img
                                 })
-                            
+                                
                             st.session_state.top3_shown = True
                             
                 except Exception as e:
@@ -174,12 +222,13 @@ if prompt := st.chat_input("Type your message here..."):
                 st.markdown(final_text_content)
             
             for rec in final_recommendations:
-                st.markdown(f"### 🐶 {rec['breed_name']}")
-                st.markdown(rec['description'])
-                st.image(rec['image'], caption=rec['breed_name'], use_column_width=True)
+                if rec['image']:
+                    st.image(rec['image'], caption=rec['breed_name'])
+                else:
+                    st.write(f"Image not found for {rec['breed_name']}")
 
             if final_video:
-                st.video(final_video)
+                st.video(final_video, width=300)
 
     st.session_state.messages.append({
         "role": "assistant", 
