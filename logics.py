@@ -8,6 +8,7 @@ import numpy as np
 from moviepy.editor import ImageSequenceClip # type: ignore
 from urllib.parse import quote
 import re
+import difflib
 
 def recommend_dog_breeds(raw_user_input,scaled_dogs,numeric_traits,scaler,ohe_cols,top_n=3):
     # Prepare numeric input
@@ -61,17 +62,39 @@ def generate_breed_explanation(breed, top_traits, trait_df):
 
     return explanation_text
 
+def normalize_breed_name(name):
+    if name is None:
+        return None
+
+    s = str(name)
+    s = s.replace("\xa0", " ")
+    s = s.replace("\u2007", " ")
+    s = s.replace("\u202F", " ")
+    s = s.strip().strip("'\"")
+    s = re.sub(r"\s+", " ", s)
+
+    return s
+
+
 def explain_top_breeds(ranked_breeds, dog_breeds, trait_df):
     results = []
-    for breed, similarity in ranked_breeds[:3]:
-        clean_breed_name = str(breed).replace('\xa0', ' ').strip()
-        breed_traits = dog_breeds.loc[clean_breed_name]
-        top_traits = breed_traits.sort_values(ascending=False).head(3).index.tolist()
 
-        explanation = generate_breed_explanation(breed, top_traits, trait_df)
+    for breed, sim in ranked_breeds[:3]:
+        clean = normalize_breed_name(breed)
+
+        if clean not in dog_breeds.index:
+            match = difflib.get_close_matches(clean, dog_breeds.index, n=1)
+            if match:
+                clean = match[0]
+            else:
+                continue
+
+        breed_traits = dog_breeds.loc[clean]
+        top_traits = breed_traits.sort_values(ascending=False).head(3).index.tolist()
+        explanation = generate_breed_explanation(clean, top_traits, trait_df)
 
         results.append({
-            "Breed": breed,
+            "Breed": clean,
             "Explanation": explanation
         })
 
@@ -165,11 +188,11 @@ def detect_content_intent(user_text):
     return None
 
 def extract_breed_from_text(user_text, cleaned_breed_list):
-    text = user_text.lower()
+    normalized_user_text = normalize_breed_name(user_text).lower()
     sorted_breeds = sorted(cleaned_breed_list, key=len, reverse=True)
 
     for breed in sorted_breeds:
-        if breed.lower() in text:
+        if breed.lower() in normalized_user_text:
             return breed
 
     return None
