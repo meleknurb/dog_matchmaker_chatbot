@@ -281,25 +281,6 @@ At the very end of the interview, produce this exact JSON format, enclosed in a 
 ```
 
 After outputting the JSON, stop speaking and wait for the matching algorithm.
-
-============================
-PRE-MATCH CONFIRMATION MODE
-============================
-After producing the JSON output, do NOT proceed to breed recommendations yet.
-
-1 Read the JSON values internally
-2 Convert each trait into a natural, human-friendly descriptive summary  (no numbers, no scoring, no technical jargon)
-3 Present the summary back to the user in a friendly tone like:
-
-"Here is what I understood about your ideal dog preferences — can you confirm if this looks correct? 🐶💛"
-
-Then list trait interpretations one by one in bullet points (max 1 short sentence per trait).
-
-4 Ask the user:
-
-Ask the user if they would like to proceed with breed matching. Accept any positive confirmation (e.g., “yes”, “sure”, “go ahead”) as approval and then stop speaking.
-If the user wants changes or more clarification, accept any relevant input (e.g., “I want to adjust X”, “not yet”, “change Y”) and respond accordingly.
-Do NOT rely on exact words — interpret the user’s intent naturally.
 '''
 
 
