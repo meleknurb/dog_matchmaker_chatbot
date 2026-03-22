@@ -76,9 +76,7 @@ for message in st.session_state.messages:
                     pass 
         
         if message.get("video"):
-            col1, col2, col3 = st.columns([1,2,1])
-            with col2:
-                st.video(message["video"])
+            st.video(message["video"], use_container_width=True)
 
 if prompt := st.chat_input("Type your message here..."):
     
@@ -230,9 +228,7 @@ if prompt := st.chat_input("Type your message here..."):
                     st.write(f"Image not found for {rec['breed_name']}")
 
             if final_video:
-                col1, col2, col3 = st.columns([1,2,1])
-                with col2:
-                    st.video(final_video)
+                st.video(final_video, use_container_width=True)
 
     st.session_state.messages.append({
         "role": "assistant", 
